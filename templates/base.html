@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GPI Student Management{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> 
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/gpilogo.png') }}" alt="GPI Logo" width="250">
+        </div>
+        <h1>GPI Student Management System</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('auth.index') }}">Home</a></li>
+                <li><a href="{{ url_for('auth.schools') }}">Schools</a></li>
+                <li><a href="{{ url_for('auth.facilitators') }}">Facilitators</a></li>
+                <li><a href="{{ url_for('auth.students') }}">Students</a></li>
+                <li><a href="{{ url_for('auth.center_girls') }}">Center girls</a></li>
+                <li><a href="{{ url_for('auth.attendances') }}">Attendances</a></li>
+                <li><a href="{{ url_for('auth.lessons') }}">Lessons</a></li>
+                <li><a href="{{ url_for('auth.assessments') }}">Assessments</a></li>
+                <li><a href="{{ url_for('auth.register') }}">Register User</a></li>
+        
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        
+        
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}  </main>
+
+    <footer>
+        <p>&copy; 2025 Girls' Power Initiative (GPI). All Rights Reserved.</p>
+    </footer>
+</body>
+</html>

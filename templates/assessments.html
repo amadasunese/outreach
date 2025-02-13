@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %} Assessments{% endblock %}
+
+{% block content %}
+    <h1>Assessments</h1>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="border: 1px solid black; padding: 8px;">ID</th>
+                <th style="border: 1px solid black; padding: 8px;">Student</th>
+                <th style="border: 1px solid black; padding: 8px;">Obtainable Score</th>
+                <th style="border: 1px solid black; padding: 8px;">Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assessment in assessments %}
+            <tr>
+                <td style="border: 1px solid black; padding: 8px;">{{ assessment.id }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ assessment.student.name }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ assessment.obtainable_score }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ assessment.score }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="/add_assessment">Add Assessment</a>
+{% endblock %}

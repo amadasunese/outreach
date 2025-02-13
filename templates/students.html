@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Students{% endblock %}
+
+{% block content %}
+<h1>Students</h1>
+
+
+
+<!-- Student Table -->
+<table style="width:100%; border-collapse: collapse;">
+    <thead>
+        <tr>
+            <th style="border: 1px solid black; padding: 8px;">ID</th>
+            <th style="border: 1px solid black; padding: 8px;">Name</th>
+            <th style="border: 1px solid black; padding: 8px;">Sex</th>
+            <th style="border: 1px solid black; padding: 8px;">Age</th>
+            <th style="border: 1px solid black; padding: 8px;">School</th>
+            <th style="border: 1px solid black; padding: 8px;">Class</th>
+            <th style="border: 1px solid black; padding: 8px;">Address</th>
+            <th style="border: 1px solid black; padding: 8px;">Phone</th>
+            <th style="border: 1px solid black; padding: 8px;">Father Name</th>
+            <th style="border: 1px solid black; padding: 8px;">Father Occupation</th>
+            <th style="border: 1px solid black; padding: 8px;">Father Phone</th>
+            <th style="border: 1px solid black; padding: 8px;">Mother Name</th>
+            <th style="border: 1px solid black; padding: 8px;">Mother Occupation</th>
+            <th style="border: 1px solid black; padding: 8px;">Mother Phone</th>
+            <th style="border: 1px solid black; padding: 8px;">Introduced By</th>
+            <th style="border: 1px solid black; padding: 8px;">Consent</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in students %}
+        <tr>
+            <td style="border: 1px solid black; padding: 8px;">{{ student.id }}</td>
+            <td style="border: 1px solid black; padding: 8px;">{{ student.name }}</td>
+            <td style="border: 1px solid black; padding: 8px;">{{ student.sex }}</td>
+            <td style="border: 1px solid black; padding: 8px;">{{ student.age }}</td>
+            <td style="border: 1px solid black; padding: 8px;">
+                {% if student.school %} {{ student.school.name }} {% else %}
+                GPI Center Meeting {% endif %}
+            </td>
+            <td style="border: 1px solid black; padding: 8px;">
+                {% if student.program_type == 'SCHOOL_OUTREACH' %}
+                    {{ student.student_class if student.student_class else "Class Not Set" }}
+                {% elif student.program_type == 'CENTER_MEETING' %}
+                    Year {{ student.center_year if student.center_year else "Year Not Set" }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
+            <td style="border: 1px solid black; padding: 8px;">{{ student.address }}</td>
+            <td style="border: 1px solid black; padding: 8px;">{{ student.phone }}</td>
+            <td style="border: 1px solid black; padding: 8px;">{{ student.father_name }}</td>
+            <td style="border: 1px solid black; padding: 8px;">{{ student.father_occupation }}</td>
+            <td style="border: 1px solid black; padding: 8px;">{{ student.father_phone }}</td>
+            <td style="border: 1px solid black; padding: 8px;">{{ student.mother_name }}</td>
+            <td style="border: 1px solid black; padding: 8px;">{{ student.mother_occupation }}</td>
+            <td style="border: 1px solid black; padding: 8px;">{{ student.mother_phone }}</td>
+            <td style="border: 1px solid black; padding: 8px;">{{ student.introduced_by }}</td>
+            <td style="border: 1px solid black; padding: 8px;">{{ student.consent }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{{ url_for('auth.add_student') }}">Add Student</a>
+{% endblock %}

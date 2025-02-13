@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %} Facilitators {% endblock %}
+
+{% block content %}
+    <h1>Facilitators</h1>
+    <table style="width:100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="border: 1px solid black; padding: 8px;">ID</th>
+                <th style="border: 1px solid black; padding: 8px;">Name</th>
+                <th style="border: 1px solid black; padding: 8px;">Phone</th>
+                <th style="border: 1px solid black; padding: 8px;">School</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for facilitator in facilitators %}
+            <tr>
+                <td style="border: 1px solid black; padding: 8px;">{{ facilitator.id }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ facilitator.name }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ facilitator.phone }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ facilitator.school.name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="/add_facilitator">Add Facilitator</a>
+
+{% endblock %}

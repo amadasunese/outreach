@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %} Lessons {% endblock %}
+
+{% block content %}
+    <h1>Lessons</h1>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="border: 1px solid black; padding: 8px;">ID</th>
+                <th style="border: 1px solid black; padding: 8px;">Week</th>
+                <th style="border: 1px solid black; padding: 8px;">Topic</th>
+                <th style="border: 1px solid black; padding: 8px;">Program Type</th>  <!-- NEW COLUMN -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for lesson in lessons %}
+            <tr>
+                <td style="border: 1px solid black; padding: 8px;">{{ lesson.id }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ lesson.week }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ lesson.topic }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ lesson.program_type }}</td>  <!-- NEW COLUMN -->
+            </tr>
+            {% endfor %}
+        </tbody>
+        
+    </table>
+    <a href="/add_lesson">Add Lesson</a>
+{% endblock %}

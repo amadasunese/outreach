@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %} Add Lesson{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Add Lesson</h1>
+    <form method="POST">
+        <label for="week">Week:</label><br>
+        <input type="number" id="week" name="week" required><br><br>
+    
+        <label for="topic">Topic:</label><br>
+        <input type="text" id="topic" name="topic" required><br><br>
+    
+        <label for="program_type">Program Type:</label><br>
+        <select id="program_type" name="program_type" required>
+            <option value="SCHOOL_OUTREACH">School Outreach</option>
+            <option value="CENTER_MEETING">Center Meeting</option>
+        </select><br><br>
+    
+        <input type="submit" value="Submit">
+    </form>
+    <a href="/lessons">Back to Lessons</a>
+</div>    
+{% endblock %}

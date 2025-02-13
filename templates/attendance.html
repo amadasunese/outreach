@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %} Assessments{% endblock %}
+
+{% block content %}
+
+    <h1>Attendances</h1>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="border: 1px solid black; padding: 8px;">ID</th>
+                <th style="border: 1px solid black; padding: 8px;">Student</th>
+                <th style="border: 1px solid black; padding: 8px;">Week</th>
+                <th style="border: 1px solid black; padding: 8px;">Present</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for attendance in attendances %}
+            <tr>
+                <td style="border: 1px solid black; padding: 8px;">{{ attendance.id }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ attendance.student.name }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ attendance.week }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ attendance.present }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="/add_attendance">Add Attendance</a>
+{% endblock %}

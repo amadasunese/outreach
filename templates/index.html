@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %} GPI Student Management{% endblock %}
+
+{% block content %}
+
+    <main>
+        <section class="hero">
+            <h2>Welcome to GPI Student Management</h2>
+            <p>Manage student enrollments, track attendance, record assessments, and check graduation eligibility.</p>
+        </section>
+
+        <section class="actions">
+            <div class="card">
+                <h3>Enroll Student</h3>
+                <p>Add a new student to the system.</p>
+                <a href="/add_student" class="btn">Enroll Now</a>
+            </div>
+            <div class="card">
+                <h3>Mark Attendance</h3>
+                <p>Record attendance for students.</p>
+                <a href="/attendance" class="btn">Mark Attendance</a>
+            </div>
+            <div class="card">
+                <h3>Record Assessment</h3>
+                <p>Track student assessments and scores.</p>
+                <a href="/assessments" class="btn">Record Scores</a>
+            </div>
+            <div class="card">
+                <h3>Check Graduation</h3>
+                <p>Determine if students qualify for graduation.</p>
+                <a href="/graduation" class="btn">Check Eligibility</a>
+            </div>
+        </section>
+    </main>
+    
+    {% endblock %}

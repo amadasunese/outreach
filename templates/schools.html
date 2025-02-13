@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %} Schools {% endblock %}
+
+{% block content %}
+    <h1>Schools</h1>
+    <table style="width:100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="border: 1px solid black; padding: 8px;">ID</th>
+                <th style="border: 1px solid black; padding: 8px;">Name</th>
+                <th style="border: 1px solid black; padding: 8px;">Address</th>
+                <th style="border: 1px solid black; padding: 8px;">Phone</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for school in schools %}
+            <tr>
+                <td style="border: 1px solid black; padding: 8px;">{{ school.id }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ school.name }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ school.address }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ school.phone }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="/add_school">Add School</a>
+{% endblock %}
