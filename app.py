@@ -5,9 +5,13 @@ from flask_login import LoginManager
 from extensions import db, migrate, login_manager, bootstrap
 from views import auth
 from models import User
+# from flaskwebgui import FlaskUI
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# ui = FlaskUI(app, width=500, height=500) 
 
 db.init_app(app)
 login_manager = LoginManager()
@@ -33,3 +37,4 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(debug=True)
+    # ui.run()

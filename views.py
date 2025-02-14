@@ -370,7 +370,54 @@ def delete_center_girl(id):
     return redirect(url_for('auth.center_girls'))
     
 
+# Outreach Girls
+@auth.route('/outreach_girls')
+def outreach_girls():
+    all_students = Student.query.filter_by(program_type='SCHOOL_OUTREACH').all()
+    return render_template('outreach_girls.html', outreach_students=all_students)
 
+
+
+@auth.route('/edit_outrach')
+def edit_outreach_girls():
+    students = Student.query.filter_by(program_type='SCHOOL_OUTREACH').all()
+    return render_template('edit_outreach_girls.html', students=students)
+
+@auth.route('/edit_outreach_girl/<int:id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_outreach_girl(id):
+    student = Student.query.get_or_404(id)
+    form_errors = []
+
+    if request.method == 'POST':
+        student.center_year = request.form.get('outreach-school')
+        student.address = request.form.get('address')
+        student.phone = request.form.get('phone')
+        student.father_name = request.form.get('father_name')
+        student.father_occupation = request.form.get('father_occupation')
+        student.father_phone = request.form.get('father_phone')
+        student.mother_name = request.form.get('mother_name')
+        student.mother_occupation = request.form.get('mother_occupation')
+        student.mother_phone = request.form.get('mother_phone')
+        student.introduced_by = request.form.get('introduced_by')
+        student.consent = True if request.form.get('consent') == 'on' else False  # Convert checkbox value to boolean
+
+    try:
+        db.session.commit()
+        flash("Student updated successfully!", "success")
+        return redirect(url_for('auth.outreach_girls'))
+    except Exception as e:
+        db.session.rollback()
+        flash(f"An error occurred: {str(e)}", "error")
+
+@auth.route(f'/delete_outreach_girl/<int:id>')
+def delete_outreach_girl(id):
+    student = Student.query.get_or_404(id)
+    db.session.delete(student)
+    db.session.commit()
+    flash("Student deleted successfully!", "success")
+    return redirect(url_for('auth.outreach_girls'))
 
 
 
