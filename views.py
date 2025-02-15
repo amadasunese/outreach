@@ -1,6 +1,6 @@
 # from flask import render_template, request, redirect, url_for, jsonify, flash
 # from app import app
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file
 from flask_login import login_user, login_required, logout_user, current_user
 from models import School, Student, Attendance, Lesson, Assessment, Facilitator, User
 from extensions import db, login_manager
@@ -9,6 +9,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from forms import LoginForm, RegistrationForm
 from flask import jsonify
 from auth import admin_required
+from sqlalchemy.sql import func
+import pandas as pd
 
 
 
@@ -107,11 +109,210 @@ def delete_user(user_id):
 
 
 # Dashboard (Protected Route)
-@auth.route('/dashboard')
-@login_required
-def dashboard():
-    return f"Welcome, {current_user.username}! <br> <a href='{url_for('auth.logout')}'>Logout</a>"
+# @auth.route('/dashboard')
+# @login_required
+# def dashboard():
+#     return f"Welcome, {current_user.username}! <br> <a href='{url_for('auth.logout')}'>Logout</a>"
 
+
+@auth.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
+
+
+
+
+@auth.route('/api/total_outreach_students')
+def total_outreach_students():
+    school = request.args.get('school')
+    gender = request.args.get('gender')
+    program_type = request.args.get('program_type')
+
+    query = db.session.query(func.count()).select_from(Student)
+
+    if school and school != "All":
+        school_id = db.session.query(School.id).filter(School.name == school).scalar()
+        if school_id:
+            query = query.filter(Student.school_id == school_id)
+
+    if gender and gender != "All":
+        query = query.filter(Student.sex == gender)
+
+    if program_type and program_type != "All":
+        query = query.filter(Student.program_type == program_type)
+
+    total_students = query.scalar()
+    return jsonify({"total": total_students})
+
+@auth.route('/api/total_girls_center')
+def total_girls_center():
+    school = request.args.get('school')
+    gender = request.args.get('gender')
+    program_type = request.args.get('program_type')
+
+    query = db.session.query(func.count()).select_from(Student).filter(Student.sex == 'Female')
+
+    if school and school != "All":
+        school_id = db.session.query(School.id).filter(School.name == school).scalar()
+        if school_id:
+            query = query.filter(Student.school_id == school_id)
+
+    if program_type and program_type != "All":
+        query = query.filter(Student.program_type == program_type)
+
+    total_girls = query.scalar()
+    return jsonify({"total": total_girls})
+
+@auth.route('/api/total_girls_per_school')
+def total_girls_per_school():
+    school = request.args.get('school')
+    gender = request.args.get('gender')
+    program_type = request.args.get('program_type')
+
+    query = db.session.query(School.name, func.count(Student.id)).join(Student).filter(Student.sex == 'Female')
+
+    if school and school != "All":
+        query = query.filter(School.name == school)
+
+    if program_type and program_type != "All":
+        query = query.filter(Student.program_type == program_type)
+
+    query = query.group_by(School.name)
+    results = query.all()
+    return jsonify(dict(results))
+
+@auth.route('/api/graduating_girls')
+def graduating_girls():
+    school = request.args.get('school')
+    gender = request.args.get('gender')
+    program_type = request.args.get('program_type')
+
+    query = db.session.query(func.count()).select_from(Student).filter(Student.sex == 'Female', Student.is_graduating == True)
+
+    if school and school != "All":
+        school_id = db.session.query(School.id).filter(School.name == school).scalar()
+        if school_id:
+            query = query.filter(Student.school_id == school_id)
+
+    if program_type and program_type != "All":
+        query = query.filter(Student.program_type == program_type)
+
+    total_graduating = query.scalar()
+    return jsonify({"total": total_graduating})
+
+@auth.route('/api/schools')
+def get_schools():
+    schools = db.session.query(School.name).all()
+    return jsonify({"schools": [s[0] for s in schools] if schools else []})
+
+# # 📊 API Route: Get Total Outreach Students
+# @auth.route('/api/total_outreach_students')
+# def total_outreach_students():
+#     total = db.session.query(func.count(Student.id)).filter_by(program_type="School Outreach").scalar()
+#     return jsonify({"total": total})
+
+# 📊 API Route: Total Outreach Students with Filters
+# @auth.route('/api/total_outreach_students')
+# def total_outreach_students():
+#     school = request.args.get('school')
+#     gender = request.args.get('gender')
+
+#     query = db.session.query(func.count(Student.id)).filter(Student.program_type == "SCHOOL_OUTREACH")
+
+#     if school and school != "All":
+#         school_id = db.session.query(School.id).filter(School.name == school).scalar()
+#         query = query.filter(Student.school_id == school_id)
+
+#     if gender and gender != "All":
+#         query = query.filter(Student.sex == gender)
+
+#     total = query.scalar()
+#     return jsonify({"total": total})
+
+
+# # 📊 API Route: Get Total Girls in Center
+# @auth.route('/api/total_girls_center')
+# def total_girls_center():
+#     total = db.session.query(func.count(Student.id)).filter_by(program_type="CENTER_MEETING", sex="Female").scalar()
+#     return jsonify({"total": total})
+
+# # 📊 API Route: Get Total Girls Per School
+# @auth.route('/api/total_girls_per_school')
+# def total_girls_per_school():
+#     results = db.session.query(School.name, func.count(Student.id)).join(Student).filter(Student.sex == "Female").group_by(School.name).all()
+#     return jsonify({school: count for school, count in results})
+
+# # 📊 API Route: Get Graduating Girls
+# @auth.route('/api/graduating_girls')
+# def graduating_girls():
+#     total = db.session.query(func.count(Student.id)).filter(
+#         Student.sex == "Female",
+#         ((Student.program_type == "SCHOOL_OUTREACH") & (Student.student_class.in_(["JSS3", "SS3"]))) |
+#         ((Student.program_type == "CENTER_MEETING") & (Student.center_year == 3))
+#     ).scalar()
+#     return jsonify({"total": total})
+
+# 📥 Export Report as CSV
+@auth.route('/export/csv')
+def export_csv():
+    data = db.session.query(Student.name, Student.program_type, Student.sex, Student.student_class, Student.center_year).all()
+    df = pd.DataFrame(data, columns=["Name", "Program Type", "Sex", "Class", "Center Year"])
+    file_path = "students_report.csv"
+    df.to_csv(file_path, index=False)
+    return send_file(file_path, as_attachment=True)
+
+# 📥 Export Report as Excel
+@auth.route('/export/excel')
+def export_excel():
+    data = db.session.query(Student.name, Student.program_type, Student.sex, Student.student_class, Student.center_year).all()
+    df = pd.DataFrame(data, columns=["Name", "Program Type", "Sex", "Class", "Center Year"])
+    file_path = "students_report.xlsx"
+    df.to_excel(file_path, index=False)
+    return send_file(file_path, as_attachment=True)
+
+# 📥 Export Report as PDF
+@auth.route('/export/pdf')
+def export_pdf():
+    data = db.session.query(Student.name, Student.program_type, Student.sex, Student.student_class, Student.center_year).all()
+    df = pd.DataFrame(data, columns=["Name", "Program Type", "Sex", "Class", "Center Year"])
+    file_path = "students_report.pdf"
+    df.to_csv("students_report.pdf", index=False) 
+    return send_file(file_path, as_attachment=True)
+
+
+
+
+
+
+# # 📊 API Route: Get Filtered Student Count
+# @auth.route('/api/filtered_students')
+# def filtered_students():
+#     school = request.args.get('school')
+#     gender = request.args.get('gender')
+#     program_type = request.args.get('program_type')
+
+#     query = db.session.query(func.count()).select_from(Student)
+
+#     if school and school != "All":
+#         school_id = db.session.query(School.id).filter(School.name == school).scalar()
+#         if school_id:
+#             query = query.filter(Student.school_id == school_id)
+
+#     if gender and gender != "All":
+#         query = query.filter(Student.sex == gender)
+
+#     if program_type and program_type != "All":
+#         query = query.filter(Student.program_type == program_type)
+
+#     total_students = query.scalar()
+#     return jsonify({"total": total_students})
+
+
+# # 📜 API Route: Get Available Schools for Filters
+# @auth.route('/api/schools')
+# def get_schools():
+#     schools = db.session.query(School.name).all()
+#     return jsonify({"schools": [s[0] for s in schools] if schools else []})
 
 
 
@@ -320,6 +521,108 @@ def add_student():
     return render_template('add_student.html', schools=schools)
 
 
+@auth.route('/edit_student/<int:id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_student(id):
+    student = Student.query.get_or_404(id)
+    schools = School.query.all()
+    form_errors = []
+
+    if request.method == 'POST':
+        name = request.form.get('name')
+        sex = request.form.get('sex')
+        age = request.form.get('age')
+        program_type = request.form.get('program_type')
+        school_id = request.form.get('school_id')
+        student_class = request.form.get('student_class')
+        center_year = request.form.get('center_year')
+        address = request.form.get('address')
+        phone = request.form.get('phone')
+        father_name = request.form.get('father_name')
+        father_occupation = request.form.get('father_occupation')
+        father_phone = request.form.get('father_phone')
+        mother_name = request.form.get('mother_name')
+        mother_occupation = request.form.get('mother_occupation')
+        mother_phone = request.form.get('mother_phone')
+        introduced_by = request.form.get('introduced_by')
+        consent = request.form.get('consent')  # Get consent value
+
+        # Validation
+        if not name:
+            form_errors.append("Name is required.")
+        if not age:
+            form_errors.append("Age is required.")
+
+        try:
+            age = int(age)
+            if age <= 0:
+                raise ValueError("Age must be greater than 0.")
+        except ValueError:
+            form_errors.append("Invalid age.")
+
+        if not program_type:
+            form_errors.append("Program Type is required.")
+
+        if program_type == 'SCHOOL_OUTREACH' and not school_id:
+            form_errors.append("School is required for School Outreach students.")
+        elif program_type == 'CENTER_MEETING' and not center_year:
+            form_errors.append("Center Year is required for Center students.")
+
+        # Convert school_id and center_year to integers if they exist
+        try:
+            school_id = int(school_id) if school_id else None
+            center_year = int(center_year) if center_year else None
+        except ValueError:
+            form_errors.append("Invalid School or Center Year")
+
+        consent = True if consent == 'on' else False  # Convert checkbox value to boolean
+
+        if not form_errors:
+            try:
+                student.name = name
+                student.sex = sex
+                student.age = age
+                student.program_type = program_type
+                student.school_id = school_id
+                student.student_class = student_class
+                student.center_year = center_year
+                student.address = address
+                student.phone = phone
+                student.father_name = father_name
+                student.father_occupation = father_occupation
+                student.father_phone = father_phone
+                student.mother_name = mother_name
+                student.mother_occupation = mother_occupation
+                student.mother_phone = mother_phone
+                student.introduced_by = introduced_by
+                student.consent = consent
+
+                db.session.commit()
+                flash("Student updated successfully!", "success")
+                return redirect(url_for('auth.students'))
+            except Exception as e:
+                db.session.rollback()
+                flash(f"An error occurred: {str(e)}", "error")
+        else:
+            for error in form_errors:
+                flash(error, "error")
+
+    return render_template('edit_student.html', student=student, schools=schools)
+
+
+@auth.route('/delete_student/<int:id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_student(id):
+    student = Student.query.get_or_404(id)
+    db.session.delete(student)
+    db.session.commit()
+    flash("Student deleted successfully!", "success")
+    return redirect(url_for('auth.students'))
+
+
+
 # Center girls
 @auth.route('/center_girls')
 def center_girls():
@@ -377,21 +680,48 @@ def outreach_girls():
     return render_template('outreach_girls.html', outreach_students=all_students)
 
 
+# @auth.route('/edit_outreach')
+# def edit_outreach_girl():
+#     students = Student.query.filter_by(program_type='SCHOOL_OUTREACH').all()
+#     student = Student.query.get_or_404(id)
+#     form_errors = []
+#     if request.method == 'POST':
+#         student.student_class = request.form.get('student_class')
+#         student.address = request.form.get('address')
+#         student.phone = request.form.get('phone')
+#         student.father_name = request.form.get('father_name')
+#         student.father_occupation = request.form.get('father_occupation')
+#         student.father_phone = request.form.get('father_phone')
+#         student.mother_name = request.form.get('mother_name')
+#         student.mother_occupation = request.form.get('mother_occupation')
+#         student.mother_phone = request.form.get('mother_phone')
+#         student.introduced_by = request.form.get('introduced_by')
+#         student.consent = True if request.form.get('consent') == 'on' else False  # Convert checkbox value to boolean
 
-@auth.route('/edit_outrach')
-def edit_outreach_girls():
-    students = Student.query.filter_by(program_type='SCHOOL_OUTREACH').all()
-    return render_template('edit_outreach_girls.html', students=students)
+#     try:
+#         db.session.commit()
+#         flash("Student updated successfully!", "success")
+#         return redirect(url_for('auth.outreach_girls'))
+#         flash(f"An error occurred: {str(e)}", "error")
+#     except Exception as e:
+#         db.session.rollback()
+#         flash(f"An error occurred: {str(e)}", "error")
 
-@auth.route('/edit_outreach_girl/<int:id>', methods=['GET', 'POST'])
-@login_required
-@admin_required
+@auth.route('/edit_outreach/<int:id>', methods=['GET', 'POST'])
 def edit_outreach_girl(id):
+    # Fetch the student by ID or return a 404 error if not found
     student = Student.query.get_or_404(id)
+
+    # Ensure the student is part of the SCHOOL_OUTREACH program
+    if student.program_type != 'SCHOOL_OUTREACH':
+        flash("This student is not part of the SCHOOL_OUTREACH program.", "error")
+        return redirect(url_for('auth.outreach_girls'))
+
     form_errors = []
 
     if request.method == 'POST':
-        student.center_year = request.form.get('outreach-school')
+        # Update student details from the form
+        student.student_class = request.form.get('student_class')
         student.address = request.form.get('address')
         student.phone = request.form.get('phone')
         student.father_name = request.form.get('father_name')
@@ -403,13 +733,81 @@ def edit_outreach_girl(id):
         student.introduced_by = request.form.get('introduced_by')
         student.consent = True if request.form.get('consent') == 'on' else False  # Convert checkbox value to boolean
 
-    try:
-        db.session.commit()
-        flash("Student updated successfully!", "success")
-        return redirect(url_for('auth.outreach_girls'))
-    except Exception as e:
-        db.session.rollback()
-        flash(f"An error occurred: {str(e)}", "error")
+        try:
+            # Commit changes to the database
+            db.session.commit()
+            flash("Student updated successfully!", "success")
+            return redirect(url_for('auth.outreach_girls'))
+        except Exception as e:
+            # Rollback in case of error
+            db.session.rollback()
+            flash(f"An error occurred: {str(e)}", "error")
+
+    # Render the edit form with the student's current data
+    return render_template('edit_outreach.html', student=student, form_errors=form_errors)
+
+# @auth.route('/edit_outrach')
+# def edit_outreach_girls():
+#     students = Student.query.filter_by(program_type='SCHOOL_OUTREACH').all()
+
+#     student = Student.query.get_or_404(id)
+#     form_errors = []
+
+#     if request.method == 'POST':
+#         student.student_class = request.form.get('student_class')
+#         student.address = request.form.get('address')
+#         student.phone = request.form.get('phone')
+#         student.father_name = request.form.get('father_name')
+#         student.father_occupation = request.form.get('father_occupation')
+#         student.father_phone = request.form.get('father_phone')
+#         student.mother_name = request.form.get('mother_name')
+#         student.mother_occupation = request.form.get('mother_occupation')
+#         student.mother_phone = request.form.get('mother_phone')
+#         student.introduced_by = request.form.get('introduced_by')
+#         student.consent = True if request.form.get('consent') == 'on' else False  # Convert checkbox value to boolean
+
+#     try:
+#         db.session.commit()
+#         flash("Student updated successfully!", "success")
+#         return redirect(url_for('auth.outreach_girls'))
+#     except Exception as e:
+#         db.session.rollback()
+#         flash(f"An error occurred: {str(e)}", "error")
+
+
+
+
+
+
+    return render_template('edit_outreach_girls.html', students=students)
+
+# @auth.route('/edit_outreach_girl/<int:id>', methods=['GET', 'POST'])
+# @login_required
+# @admin_required
+# def edit_outreach_girl(id):
+#     student = Student.query.get_or_404(id)
+#     form_errors = []
+
+#     if request.method == 'POST':
+#         student.center_year = request.form.get('outreach-school')
+#         student.address = request.form.get('address')
+#         student.phone = request.form.get('phone')
+#         student.father_name = request.form.get('father_name')
+#         student.father_occupation = request.form.get('father_occupation')
+#         student.father_phone = request.form.get('father_phone')
+#         student.mother_name = request.form.get('mother_name')
+#         student.mother_occupation = request.form.get('mother_occupation')
+#         student.mother_phone = request.form.get('mother_phone')
+#         student.introduced_by = request.form.get('introduced_by')
+#         student.consent = True if request.form.get('consent') == 'on' else False
+
+#     try:
+#         db.session.commit()
+#         flash("Student updated successfully!", "success")
+#         return redirect(url_for('auth.outreach_girls'))
+#     except Exception as e:
+#         db.session.rollback()
+#         flash(f"An error occurred: {str(e)}", "error")
 
 @auth.route(f'/delete_outreach_girl/<int:id>')
 def delete_outreach_girl(id):

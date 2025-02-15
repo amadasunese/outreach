@@ -4,22 +4,29 @@
 
 {% block content %}
 <div class="container">
-    <h1>Add Lesson</h1>
-    <form method="POST">
-        <label for="week">Week:</label><br>
-        <input type="number" id="week" name="week" required><br><br>
-    
-        <label for="topic">Topic:</label><br>
-        <input type="text" id="topic" name="topic" required><br><br>
-    
-        <label for="program_type">Program Type:</label><br>
-        <select id="program_type" name="program_type" required>
-            <option value="SCHOOL_OUTREACH">School Outreach</option>
-            <option value="CENTER_MEETING">Center Meeting</option>
-        </select><br><br>
-    
-        <input type="submit" value="Submit">
-    </form>
-    <a href="/lessons">Back to Lessons</a>
-</div>    
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1 class="text-center">Add Lesson</h1>
+            <form method="POST">
+                <div class="form-group">
+                    <label for="week">Week:</label>
+                    <input type="number" class="form-control" id="week" name="week" required>
+                </div>
+                <div class="form-group">
+                    <label for="topic">Topic:</label>
+                    <input type="text" class="form-control" id="topic" name="topic" required>
+                </div>
+                <div class="form-group">
+                    <label for="program_type">Program Type:</label>
+                    <select class="form-control" id="program_type" name="program_type" required>
+                        <option value="SCHOOL_OUTREACH">School Outreach</option>
+                        <option value="CENTER_MEETING">Center Meeting</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+            <a href="/lessons" class="btn btn-secondary mt-3">Back to Lessons</a>
+        </div>
+    </div>
+</div>
 {% endblock %}

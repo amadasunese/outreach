@@ -5,21 +5,25 @@
 {% block content %}
 <div class="container">
     <h1>Add Facilitator</h1>
-    <form method="POST">
-      <label for="name">Name:</label><br>
-      <input type="text" id="name" name="name" required><br><br>
-      <label for="phone">Phone:</label><br>
-      <input type="text" id="phone" name="phone"><br><br>
-        <label for="school_id">School:</label><br>
-        <select name="school_id" id="school_id">
+    <form class="needs-validation" method="POST">
+      <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" class="form-control" id="name" name="name" required>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone:</label>
+        <input type="text" class="form-control" id="phone" name="phone">
+      </div>
+      <div class="form-group">
+        <label for="school_id">School:</label>
+        <select class="form-control" name="school_id" id="school_id">
             {% for school in schools %}
             <option value="{{ school.id }}">{{ school.name }}</option>
             {% endfor %}
-        </select><br><br>
-      <input type="submit" value="Submit">
-  </form>
-    <a href="/facilitators">Back to Facilitators</a>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <a href="/facilitators" class="btn btn-secondary">Back to Facilitators</a>
 </div>
-
-
-  {% endblock %}
+{% endblock %}

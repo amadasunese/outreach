@@ -13,15 +13,15 @@
     <form method="POST">
         {{ form.hidden_tag() }}
         <div class="mb-3">
-            {{ form.username.label }} {{ form.username(class="form-control") }}
+            {{ form.username.label }} {{ form.username(class="form-control", style="max-width: 300px;") }}
         </div>
         <div class="mb-3">
-            {{ form.password.label }} {{ form.password(class="form-control") }}
+            {{ form.password.label }} {{ form.password(class="form-control", style="max-width: 300px;") }}
         </div>
         <div class="mb-3">
             {{ form.remember() }} {{ form.remember.label }}
         </div>
-        <button type="submit" class="btn btn-primary">Login</button>
+        <button type="submit" class="btn btn-primary" style="max-width: 300px;">Login</button>
     </form>
 </div>
 {% endblock %}

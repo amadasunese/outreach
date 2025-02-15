@@ -3,84 +3,160 @@
 {% block title %}Add Student{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>Add Student</h1>
-    <form method="POST">
-        <label for="name">Name:</label><br>
-        <input type="text" id="name" name="name" required><br><br>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="text-center">Add Student</h1>
+            <form method="POST" id="studentForm">
+                <!-- Section 1: Personal Information -->
+                <div class="form-section">
+                    <h4 class="text-center">Personal Information</h4>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name:</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
 
-        <label for="sex">Sex:</label><br>
-        <select name="sex" id="sex">
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
-        </select><br><br>
+                    <div class="mb-3">
+                        <label for="sex" class="form-label">Sex:</label>
+                        <select class="form-control" name="sex" id="sex">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
 
-        <label for="age">Age:</label><br>
-        <input type="number" id="age" name="age"><br><br>
+                    <div class="mb-3">
+                        <label for="age" class="form-label">Age:</label>
+                        <input type="number" class="form-control" id="age" name="age">
+                    </div>
 
-        <label for="program_type">Program Type:</label><br>
-        <select name="program_type" id="program_type" required>
-            <option value="SCHOOL_OUTREACH">School Outreach</option>
-            <option value="CENTER_MEETING">Center Meeting</option>
-        </select><br><br>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-primary next">Next</button>
+                    </div>
+                </div>
 
-        <div id="school_fields">  <label for="school_id">School:</label><br>
-            <select name="school_id" id="school_id">
-                <option value="">--Select School--</option>  {% for school in schools %}
-                <option value="{{ school.id }}">{{ school.name }}</option>
-                {% endfor %}
-            </select><br><br>
+                <!-- Section 2: Program Details -->
+                <div class="form-section" style="display: none;">
+                    <h4 class="text-center">Program Details</h4>
+                    <div class="mb-3">
+                        <label for="program_type" class="form-label">Program Type:</label>
+                        <select class="form-control" name="program_type" id="program_type" required>
+                            <option value="SCHOOL_OUTREACH">School Outreach</option>
+                            <option value="CENTER_MEETING">Center Meeting</option>
+                        </select>
+                    </div>
 
-            <label for="student_class">Class:</label><br>
-            <input type="text" id="student_class" name="student_class"><br><br>
+                    <div id="school_fields" class="mb-3">
+                        <label for="school_id" class="form-label">School:</label>
+                        <select class="form-control" name="school_id" id="school_id">
+                            <option value="">--Select School--</option>
+                            {% for school in schools %}
+                            <option value="{{ school.id }}">{{ school.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div id="center_fields" class="mb-3" style="display: none;">
+                        <label for="center_year" class="form-label">Center Year:</label>
+                        <select class="form-control" name="center_year" id="center_year">
+                            <option value="">--Select Year--</option>
+                            <option value="1">Year 1</option>
+                            <option value="2">Year 2</option>
+                            <option value="3">Year 3</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary prev">Previous</button>
+                        <button type="button" class="btn btn-primary next">Next</button>
+                    </div>
+                </div>
+
+                <!-- Section 3: Contact & Parental Information -->
+                <div class="form-section" style="display: none;">
+                    <h4 class="text-center">Contact & Parental Information</h4>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address:</label>
+                        <input type="text" class="form-control" id="address" name="address">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Phone:</label>
+                        <input type="text" class="form-control" id="phone" name="phone">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="father_name" class="form-label">Father's Name:</label>
+                        <input type="text" class="form-control" id="father_name" name="father_name">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="father_occupation" class="form-label">Father's Occupation:</label>
+                        <input type="text" class="form-control" id="father_occupation" name="father_occupation">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="mother_name" class="form-label">Mother's Name:</label>
+                        <input type="text" class="form-control" id="mother_name" name="mother_name">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="introduced_by" class="form-label">Introduced By:</label>
+                        <input type="text" class="form-control" id="introduced_by" name="introduced_by">
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="consent" name="consent">
+                        <label for="consent" class="form-check-label">Consent</label>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary prev">Previous</button>
+                        <input type="submit" class="btn btn-success" value="Submit">
+                    </div>
+                </div>
+            </form>
+
+            <a href="{{ url_for('auth.students') }}" class="btn btn-link mt-3">Back to Students</a>
         </div>
-
-        <div id="center_fields" style="display: none;">  <label for="center_year">Center Year:</label><br>
-            <select name="center_year" id="center_year">
-                <option value="">--Select Year--</option>
-                <option value="1">Year 1</option>
-                <option value="2">Year 2</option>
-                <option value="3">Year 3</option>
-            </select><br><br>
-        </div>
-
-        <label for="address">Address:</label><br>
-        <input type="text" id="address" name="address"><br><br>
-
-        <label for="phone">Phone:</label><br>
-        <input type="text" id="phone" name="phone"><br><br>
-
-        <label for="father_name">Father Name:</label><br>
-        <input type="text" id="father_name" name="father_name"><br><br>
-
-        <label for="father_occupation">Father Occupation:</label><br>
-        <input type="text" id="father_occupation" name="father_occupation"><br><br>
-
-        <label for="father_phone">Father Phone:</label><br>
-        <input type="text" id="father_phone" name="father_phone"><br><br>
-
-        <label for="mother_name">Mother Name:</label><br>
-        <input type="text" id="mother_name" name="mother_name"><br><br>
-
-        <label for="mother_occupation">Mother Occupation:</label><br>
-        <input type="text" id="mother_occupation" name="mother_occupation"><br><br>
-
-        <label for="mother_phone">Mother Phone:</label><br>
-        <input type="text" id="mother_phone" name="mother_phone"><br><br>
-
-        <label for="introduced_by">Introduced By:</label><br>
-        <input type="text" id="introduced_by" name="introduced_by"><br><br>
-
-        <label for="consent">Consent:</label><br>
-        <input type="checkbox" id="consent" name="consent"><br><br>
-
-        <input type="submit" value="Submit">
-    </form>
-    <a href="{{ url_for('auth.students') }}">Back to Students</a>
+    </div>
 </div>
 
+<!-- JavaScript for Form Navigation -->
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let currentSection = 0;
+        const sections = document.querySelectorAll(".form-section");
+        const nextButtons = document.querySelectorAll(".next");
+        const prevButtons = document.querySelectorAll(".prev");
+
+        function showSection(index) {
+            sections.forEach((section, i) => {
+                section.style.display = i === index ? "block" : "none";
+            });
+        }
+
+        nextButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                if (currentSection < sections.length - 1) {
+                    currentSection++;
+                    showSection(currentSection);
+                }
+            });
+        });
+
+        prevButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                if (currentSection > 0) {
+                    currentSection--;
+                    showSection(currentSection);
+                }
+            });
+        });
+
+        showSection(currentSection);
+    });
+
     const programTypeSelect = document.getElementById('program_type');
     const schoolFields = document.getElementById('school_fields');
     const centerFields = document.getElementById('center_fields');
@@ -95,5 +171,4 @@
         }
     });
 </script>
-
 {% endblock %}

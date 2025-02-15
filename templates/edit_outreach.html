@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Edit Outreach Student</h2>
+<form method="POST">
+    <div>
+        <label>Class:</label>
+        <input type="text" name="student_class" value="{{ student.student_class }}">
+    </div>
+    <div>
+        <label>Address:</label>
+        <input type="text" name="address" value="{{ student.address }}">
+    </div>
+    <div>
+        <label>Phone:</label>
+        <input type="text" name="phone" value="{{ student.phone }}">
+    </div>
+    <div>
+        <label>Father's Name:</label>
+        <input type="text" name="father_name" value="{{ student.father_name }}">
+    </div>
+    <div>
+        <label>Father's Occupation:</label>
+        <input type="text" name="father_occupation" value="{{ student.father_occupation }}">
+    </div>
+    <div>
+        <label>Father's Phone:</label>
+        <input type="text" name="father_phone" value="{{ student.father_phone }}">
+    </div>
+    <div>
+        <label>Mother's Name:</label>
+        <input type="text" name="mother_name" value="{{ student.mother_name }}">
+    </div>
+    <div>
+        <label>Mother's Occupation:</label>
+        <input type="text" name="mother_occupation" value="{{ student.mother_occupation }}">
+    </div>
+    <div>
+        <label>Mother's Phone:</label>
+        <input type="text" name="mother_phone" value="{{ student.mother_phone }}">
+    </div>
+    <div>
+        <label>Introduced By:</label>
+        <input type="text" name="introduced_by" value="{{ student.introduced_by }}">
+    </div>
+    <div>
+        <label>Consent:</label>
+        <input type="checkbox" name="consent" {% if student.consent %}checked{% endif %}>
+    </div>
+    <button type="submit">Save Changes</button>
+</form>
+{% endblock %}

@@ -1,0 +1,9 @@
+flask_migrate==4.0.7
+flask_bootstrap==3.3.7.1
+python-dotenv==1.0.1
+flask==2.2.2
+Flask-SQLAlchemy==2.5.1
+Werkzeug==2.2.2
+flask_login==0.6.2
+# Flask-Security==3.0.0
+

@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Add Student{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1 class="text-center">Add Student</h1>
+            <form method="POST">
+                <!-- Section 1: Personal Information -->
+                <div class="section" id="section1">
+                    <h3>Personal Information</h3>
+                    <div class="form-group">
+                        <label for="name">Name:</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div><br>
+
+                    <div class="form-group">
+                        <label for="sex">Sex:</label>
+                        <select class="form-control" name="sex" id="sex">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div><br>
+
+                    <div class="form-group">
+                        <label for="age">Age:</label>
+                        <input type="number" class="form-control" id="age" name="age">
+                    </div><br>
+                </div>
+
+                <!-- Section 2: Program Information -->
+                <div class="section" id="section2" style="display: none;">
+                    <h3>Program Information</h3>
+                    <div class="form-group">
+                        <label for="program_type">Program Type:</label>
+                        <select class="form-control" name="program_type" id="program_type" required>
+                            <option value="SCHOOL_OUTREACH">School Outreach</option>
+                            <option value="CENTER_MEETING">Center Meeting</option>
+                        </select>
+                    </div><br>
+
+                    <div id="school_fields" class="form-group">
+                        <label for="school_id">School:</label>
+                        <select class="form-control" name="school_id" id="school_id">
+                            <option value="">--Select School--</option>
+                            {% for school in schools %}
+                            <option value="{{ school.id }}">{{ school.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div><br>
+
+                    <div id="center_fields" class="form-group" style="display: none;">
+                        <label for="center_year">Center Year:</label>
+                        <select class="form-control" name="center_year" id="center_year">
+                            <option value="">--Select Year--</option>
+                            <option value="1">Year 1</option>
+                            <option value="2">Year 2</option>
+                            <option value="3">Year 3</option>
+                        </select>
+                    </div><br>
+                </div>
+
+                <!-- Section 3: Contact Information -->
+                <div class="section" id="section3" style="display: none;">
+                    <h3>Contact Information</h3>
+                    <div class="form-group">
+                        <label for="address">Address:</label>
+                        <input type="text" class="form-control" id="address" name="address">
+                    </div><br>
+
+                    <div class="form-group">
+                        <label for="phone">Phone:</label>
+                        <input type="text" class="form-control" id="phone" name="phone">
+                    </div><br>
+
+                    <div class="form-group">
+                        <label for="father_name">Father Name:</label>
+                        <input type="text" class="form-control" id="father_name" name="father_name">
+                    </div><br>
+
+                    <div class="form-group">
+                        <label for="father_occupation">Father Occupation:</label>
+                        <input type="text" class="form-control" id="father_occupation" name="father_occupation">
+                    </div><br>
+
+                    <div class="form-group">
+                        <label for="father_phone">Father Phone:</label>
+                        <input type="text" class="form-control" id="father_phone" name="father_phone">
+                    </div><br>
+
+                    <div class="form-group">
+                        <label for="mother_name">Mother Name:</label>
+                        <input type="text" class="form-control" id="mother_name" name="mother_name">
+                    </div><br>
+
+                    <div class="form-group">
+                        <label for="mother_occupation">Mother Occupation:</label>
+                        <input type="text" class="form-control" id="mother_occupation" name="mother_occupation">
+                    </div><br>
+
+                    <div class="form-group">
+                        <label for="mother_phone">Mother Phone:</label>
+                        <input type="text" class="form-control" id="mother_phone" name="mother_phone">
+                    </div><br>
+
+                    <div class="form-group">
+                        <label for="introduced_by">Introduced By:</label>
+                        <input type="text" class="form-control" id="introduced_by" name="introduced_by">
+                    </div><br>
+
+                    <div class="form-group">
+                        <label for="consent">Consent:</label>
+                        <input type="checkbox" class="form-control" id="consent" name="consent">
+                    </div><br>
+                </div>
+
+                <div class="text-center">
+                    <button type="button" class="btn btn-primary" id="prevBtn" onclick="prevSection()">Previous</button>
+                    <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextSection()">Next</button>
+                    <input type="submit" class="btn btn-primary" value="Submit" id="submitBtn" style="display: none;">
+                </div><br>
+            </form>
+            <a href="{{ url_for('auth.students') }}" class="btn btn-link">Back to Students</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const sections = document.getElementsByClassName('section');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    let currentSection = 0;
+
+    function showSection(index) {
+        for (let i = 0; i < sections.length; i++) {
+            sections[i].style.display = 'none';
+        }
+        sections[index].style.display = 'block';
+
+        if (index === 0) {
+            prevBtn.style.display = 'none';
+        } else {
+            prevBtn.style.display = 'inline-block';
+        }
+
+        if (index === sections.length - 1) {
+            nextBtn.style.display = 'none';
+            submitBtn.style.display = 'inline-block';
+        } else {
+            nextBtn.style.display = 'inline-block';
+            submitBtn.style.display = 'none';
+        }
+    }
+
+    function prevSection() {
+        if (currentSection > 0) {
+            currentSection--;
+            showSection(currentSection);
+        }
+    }
+
+    function nextSection() {
+        if (currentSection < sections.length - 1) {
+            currentSection++;
+            showSection(currentSection);
+        }
+    }
+
+    showSection(currentSection);
+</script>
+
+{% endblock %}
