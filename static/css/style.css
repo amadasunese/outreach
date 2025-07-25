@@ -273,6 +273,14 @@ footer p {
     font-size: 0.9rem;
 }
 
+.powered a {
+    /* color: #ecf0f1;
+    text-decoration: none; */
+    display: contents !important;
+    text-align: center !important;
+    margin-top: 20px;
+}
+
 
 /* .container {
     width: 400px;

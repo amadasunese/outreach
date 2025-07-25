@@ -2,7 +2,7 @@
 # from app import app
 from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file
 from flask_login import login_user, login_required, logout_user, current_user
-from models import School, Student, Attendance, Lesson, Assessment, Facilitator, User
+from models import School, Student, Attendance, Lesson, Assessment, Facilitator, User, AssessmentType
 from extensions import db, login_manager
 # from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -11,7 +11,8 @@ from flask import jsonify
 from auth import admin_required
 from sqlalchemy.sql import func
 import pandas as pd
-
+from sqlalchemy.exc import IntegrityError
+from flask import abort
 
 
 auth = Blueprint('auth', __name__)
@@ -128,7 +129,8 @@ def total_outreach_students():
     gender = request.args.get('gender')
     program_type = request.args.get('program_type')
 
-    query = db.session.query(func.count()).select_from(Student)
+    # query = db.session.query(func.count()).select_from(Student)
+    query = db.session.query(func.count(Student.id))
 
     if school and school != "All":
         school_id = db.session.query(School.id).filter(School.name == school).scalar()
@@ -152,10 +154,13 @@ def total_girls_center():
 
     query = db.session.query(func.count()).select_from(Student).filter(Student.sex == 'Female')
 
+    # if school and school != "All":
+    #     school_id = db.session.query(School.id).filter(School.name == school).scalar()
+    #     if school_id:
+    #         query = query.filter(Student.school_id == school_id)
+
     if school and school != "All":
-        school_id = db.session.query(School.id).filter(School.name == school).scalar()
-        if school_id:
-            query = query.filter(Student.school_id == school_id)
+        query = query.join(School).filter(School.name == school)
 
     if program_type and program_type != "All":
         query = query.filter(Student.program_type == program_type)
@@ -321,7 +326,14 @@ def export_pdf():
 @login_required
 def schools():
     all_schools = School.query.all()
-    return render_template('schools.html', schools=all_schools)
+
+    # Count the number of students in each school
+    student_counts = []
+    for school in all_schools:
+        count = db.session.query(func.count(Student.id)).filter(Student.school_id == school.id).scalar()
+        student_counts = count
+
+    return render_template('schools.html', schools=all_schools, student_counts=student_counts)
 
 @auth.route('/add_school', methods=['GET', 'POST'])
 @login_required
@@ -408,16 +420,21 @@ def add_facilitator():
 #     all_schools = School.query.all()
 #     return render_template('students.html', students=all_students, schools=all_schools)
 
+# @auth.route('/students')
+# def students():
+#     all_students = Student.query.all()
+
+#     for student in all_students:
+#         print(f"ID: {student.id}, Name: {student.name}, Program Type: {student.program_type}, Class: {student.student_class}, Center Year: {student.center_year}")
+
+#     all_schools = School.query.all()
+#     return render_template('students.html', students=all_students, schools=all_schools)
+
 @auth.route('/students')
+@login_required
 def students():
-    all_students = Student.query.all()
-
-    for student in all_students:
-        print(f"ID: {student.id}, Name: {student.name}, Program Type: {student.program_type}, Class: {student.student_class}, Center Year: {student.center_year}")
-
-    all_schools = School.query.all()
-    return render_template('students.html', students=all_students, schools=all_schools)
-
+    students = Student.query.all()
+    return render_template('students.html', students=students)
 
 # @auth.route('/add_student', methods=['GET', 'POST'])
 # @login_required
@@ -459,6 +476,7 @@ def add_student():
         school_id = request.form.get('school_id')
         student_class = request.form.get('student_class')
         center_year = request.form.get('center_year')
+        academic_session = request.form.get('academic_session')
         address = request.form.get('address')
         phone = request.form.get('phone')
         father_name = request.form.get('father_name')
@@ -537,6 +555,8 @@ def edit_student(id):
         school_id = request.form.get('school_id')
         student_class = request.form.get('student_class')
         center_year = request.form.get('center_year')
+        academic_session = request.form.get('academic_session')
+        term = request.form.get('term')
         address = request.form.get('address')
         phone = request.form.get('phone')
         father_name = request.form.get('father_name')
@@ -587,6 +607,8 @@ def edit_student(id):
                 student.school_id = school_id
                 student.student_class = student_class
                 student.center_year = center_year
+                student.academic_session = academic_session
+                student.term = term
                 student.address = address
                 student.phone = phone
                 student.father_name = father_name
@@ -611,14 +633,35 @@ def edit_student(id):
     return render_template('edit_student.html', student=student, schools=schools)
 
 
-@auth.route('/delete_student/<int:id>', methods=['POST'])
+# @auth.route('/delete_student/<int:id>', methods=['GET','POST'])
+# @login_required
+# @admin_required
+# def delete_student(id):
+#     student = Student.query.get_or_404(id)
+#     db.session.delete(student)
+#     db.session.commit()
+#     flash("Student deleted successfully!", "success")
+#     return redirect(url_for('auth.students'))
+
+@auth.route('/delete_student/<int:id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def delete_student(id):
     student = Student.query.get_or_404(id)
-    db.session.delete(student)
-    db.session.commit()
-    flash("Student deleted successfully!", "success")
+    
+    try:
+        db.session.delete(student)
+        db.session.commit()
+        flash("Student deleted successfully!", "success")
+    
+    except IntegrityError:
+        db.session.rollback()
+        flash("Cannot delete student because there are related records (e.g., assessments, attendance). Please delete those first.", "danger")
+    
+    except Exception as e:
+        db.session.rollback()
+        flash(f"An unexpected error occurred: {str(e)}", "danger")
+
     return redirect(url_for('auth.students'))
 
 
@@ -677,6 +720,7 @@ def delete_center_girl(id):
 @auth.route('/outreach_girls')
 def outreach_girls():
     all_students = Student.query.filter_by(program_type='SCHOOL_OUTREACH').all()
+    
     return render_template('outreach_girls.html', outreach_students=all_students)
 
 
@@ -915,18 +959,77 @@ def attendances():
     students = Student.query.all()
     return render_template('attendance.html', attendances=attendances, students=students)
 
+# @auth.route('/add_attendance', methods=['GET', 'POST'])
+# @login_required
+# @admin_required
+# def add_attendance():
+#     students = Student.query.all()
+#     if request.method == 'POST':
+#         # ... get data from the form
+#         attendance = Attendance(**data)
+#         db.session.add(attendance)
+#         db.session.commit()
+#         return redirect(url_for('auth.attendances'))
+#     return render_template('add_attendance.html', students=students)
+
+# from flask import render_template, request, redirect, url_for, flash
+# from flask_login import login_required
+# from models import Student, Attendance, db
+# from extensions import admin_required
+# from flask import Blueprint
+
+# auth = Blueprint('auth', __name__)
+
 @auth.route('/add_attendance', methods=['GET', 'POST'])
 @login_required
-@admin_required
+# @admin_required
 def add_attendance():
     students = Student.query.all()
+
+    # Fetch unique values for dropdowns
+    center_years = sorted(set([s.center_year for s in students if s.center_year]))
+    center_classes = sorted(set([s.center_class for s in students if s.center_class]))
+    academic_sessions = sorted(set([s.academic_session for s in students if s.academic_session]))
+    terms = sorted(set([s.term for s in students if s.term]))
+
     if request.method == 'POST':
-        # ... get data from the form
-        attendance = Attendance(**data)
+        student_id = request.form.get('student_id')
+        week = request.form.get('week')
+        present = request.form.get('present') == 'on'
+
+        # Fetch the student record to determine if they are center or outreach
+        student = Student.query.get(student_id)
+        if not student:
+            flash("Invalid student selected.", "danger")
+            return redirect(url_for('auth.add_attendance'))
+
+        attendance_data = {
+            "student_id": student_id,
+            "week": week,
+            "present": present
+        }
+
+        # Store Center Student Details
+        if student.program_type == "center":
+            attendance_data["center_year"] = request.form.get('center_year')
+            attendance_data["center_class"] = request.form.get('center_class')
+
+        # Store Outreach Student Details
+        elif student.program_type == "outreach":
+            attendance_data["academic_session"] = request.form.get('academic_session')
+            attendance_data["term"] = request.form.get('term')
+
+        # Create and save the attendance record
+        attendance = Attendance(**attendance_data)
         db.session.add(attendance)
         db.session.commit()
+        flash("Attendance added successfully!", "success")
         return redirect(url_for('auth.attendances'))
-    return render_template('add_attendance.html', students=students)
+
+    return render_template('add_attendance.html', students=students, 
+                           center_years=center_years, center_classes=center_classes,
+                           academic_sessions=academic_sessions, terms=terms)
+
 
 @auth.route('/mark_attendance', methods=['POST'])
 @login_required
@@ -947,24 +1050,124 @@ def assessments():
     students = Student.query.all()
     return render_template('assessments.html', assessments=assessments, students=students)
 
+# @auth.route('/add_assessment', methods=['GET', 'POST'])
+# @login_required
+# @admin_required
+# def add_assessment():
+#     students = Student.query.all()
+#     if request.method == 'POST':
+#         # get data from the form
+#         data = request.form.to_dict()
+#         data['student_id'] = int(data['student_id'])
+#         data['obtainable_score'] = int(data['obtainable_score'])
+#         data['score'] = int(data['score'])
+
+        
+#         assessment = Assessment(**data)
+#         db.session.add(assessment)
+#         db.session.commit()
+#         return redirect(url_for('auth.assessments'))
+#     return render_template('add_assessment.html', students=students)
+
 @auth.route('/add_assessment', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def add_assessment():
     students = Student.query.all()
-    if request.method == 'POST':
-        # get data from the form
-        data = request.form.to_dict()
-        data['student_id'] = int(data['student_id'])
-        data['obtainable_score'] = int(data['obtainable_score'])
-        data['score'] = int(data['score'])
+    # assessment_types = [e.name for e in AssessmentType]
 
-        
-        assessment = Assessment(**data)
+    # Use Enum values instead of names
+    assessment_types = [(e.value, e.value) for e in AssessmentType]
+
+    # Fetch unique values for dropdowns
+    center_years = sorted(set([s.center_year for s in students if s.center_year]))
+    center_classes = sorted(set([s.center_class for s in students if s.center_class]))
+    academic_sessions = sorted(set([s.academic_session for s in students if s.academic_session]))
+    terms = sorted(set([s.term for s in students if s.term]))
+    # assessment_types = [e.name for e in AssessmentType]
+    # assessment_types = [(e.value, e.value) for e in AssessmentType]
+    # assessment_type = request.form.get('assessment_type')  # Enum values for dropdown
+    # print("Received assessment type:", assessment_types)
+    # print("Defined Enum Values:", [e.name for e in AssessmentType])
+
+    if request.method == 'POST':
+        student_id = request.form.get('student_id')
+        obtainable_score = request.form.get('obtainable_score')
+        score = request.form.get('score')
+        # assessment_type = request.form.get('assessment_type')
+        assessment_type = request.form.get('assessment_type')  # This will now be the value (e.g., "Outreach Promotion Assessment")
+
+        # Fetch the student record to determine if they are center or outreach
+        student = Student.query.get(student_id)
+        if not student:
+            flash("Invalid student selected.", "danger")
+            return redirect(url_for('auth.add_assessment'))
+
+        assessment_data = {
+            "student_id": student_id,
+            "obtainable_score": float(obtainable_score),
+            "score": float(score),
+            # "assessment_type": assessment_type
+            # "assessment_type": AssessmentType[assessment_type]
+            "assessment_type": AssessmentType(assessment_type)
+            
+        }
+
+        # Store Center Student Details
+        if student.program_type == "CENTER_MEETING":
+            assessment_data["center_year"] = request.form.get('center_year')
+            assessment_data["center_class"] = request.form.get('center_class')
+
+        # Store Outreach Student Details
+        elif student.program_type == "SCHOOL_OUTREACH":
+            assessment_data["academic_session"] = request.form.get('academic_session')
+            assessment_data["term"] = request.form.get('term')
+
+        # Create and save the assessment record
+        assessment = Assessment(**assessment_data)
         db.session.add(assessment)
         db.session.commit()
+        flash("Assessment added successfully!", "success")
         return redirect(url_for('auth.assessments'))
-    return render_template('add_assessment.html', students=students)
+
+    return render_template('add_assessment.html', students=students,
+                           center_years=center_years, center_classes=center_classes,
+                           academic_sessions=academic_sessions, terms=terms,
+                           assessment_types=assessment_types)
+
+# Route to get the student's program type
+# @auth.route('/get_student_program_type/<int:student_id>', methods=['GET'])
+# def get_student_program_type(student_id):
+#     student = Student.query.get(student_id)
+    
+#     if student:
+#         # Convert the Enum to its value (string)
+#         program_type_value = student.program_type.value
+#         return jsonify({
+#             'program_type': program_type_value
+#         })
+#     else:
+#         return jsonify({
+#             'error': 'Student not found'
+#         }), 404
+
+@auth.route('/get_student_program_type/<int:student_id>', methods=['GET'])
+def get_student_program_type(student_id):
+    student = Student.query.get(student_id)
+    print(student.program_type.value)
+    
+    if student:
+        return jsonify({
+            'program_type': student.program_type.value,
+            'center_year': student.center_year,  # Include center year
+            'center_class': student.center_class,  # Include center class
+            'academic_session': student.academic_session,  # Include academic session
+            'term': student.term  # Include term
+        })
+        
+    else:
+        return jsonify({'error': 'Student not found'}), 404
+
 
 @auth.route('/record_assessment', methods=['POST'])
 @login_required
@@ -1008,6 +1211,29 @@ def graduation():
     return render_template('graduation.html', students=students)
 
 
+
+
+@auth.route('/api/graduate_student', methods=['GET', 'POST'])
+def graduate_student():
+    if not request.is_json:  # Check if request content is JSON
+        return jsonify({"message": "Invalid request, content must be JSON"}), 400
+
+    data = request.get_json()
+    if not data or "student_id" not in data:
+        return jsonify({"message": "Invalid request, missing student_id"}), 400
+
+    student_id = data["student_id"]
+    student = Student.query.get(student_id)
+
+    if not student:
+        return jsonify({"message": "Student not found"}), 404
+
+    student.graduated = True
+    db.session.commit()
+
+    return jsonify({"message": f"{student.first_name} {student.last_name} has graduated!"})
+
+
 @auth.route("/")
 def graduation_eligibility():
     students = Student.query.all()  # Fetch all students
@@ -1023,3 +1249,64 @@ def get_student_data(student_id):
         "attendance": student_attendance.percentage if student_attendance else 0,
         "assessment": student_assessment.score if student_assessment else 0
     })
+
+
+# Fetch Students
+
+@auth.route("/api/students", methods=["GET"])
+def get_students():
+    program = request.args.get("program")
+    student_class = request.args.get("class")
+
+    query = Student.query
+
+    if program:
+        query = query.filter(Student.program == program)
+    if student_class:
+        query = query.filter(Student.student_class == student_class)
+
+    students = query.all()
+    
+    return jsonify([{
+        "id": student.id,
+        "name": student.name,
+        "program": str(student.program_type),  # ✅ Convert ProgramType to string
+        "center_year": student.center_year,
+        "student_class": student.student_class,
+        # "assessment_score": student.assessment_score,
+        "graduated": student.is_graduating
+    } for student in students])
+
+
+
+@auth.route('/api/promote_students', methods=['POST'])
+def promote_students():
+    data = request.get_json() or request.form  # 👈 Fallback to form data
+
+    if not data or "student_id" not in data:
+        return jsonify({"message": "Invalid request, missing student_id"}), 400
+
+    student_id = data["student_id"]
+    student = Student.query.get(student_id)
+
+    if not student:
+        return jsonify({"message": "Student not found"}), 404
+
+    # Logic to promote student (move to next class)
+    if student.program == "CENTER_MEETING":
+        if student.center_year == "Pearl":
+            student.center_year = "Diamond"
+        elif student.center_year == "Diamond":
+            student.center_year = "Oasis"
+        elif student.center_year == "Oasis":
+            student.graduated = True  # Graduate Oasis students
+
+    elif student.program == "SCHOOL_OUTREACH":
+        if student.student_class == "SS3":
+            student.graduated = True  # Graduate final-year students
+        else:
+            student.student_class = f"SS{int(student.student_class[-1]) + 1}"
+
+    db.session.commit()
+
+    return jsonify({"message": f"{student.first_name} {student.last_name} promoted successfully!"})

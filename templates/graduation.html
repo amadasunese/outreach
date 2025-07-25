@@ -1,53 +1,97 @@
 {% extends "base.html" %}
-
-{% block title %} Graduation Eligibility {% endblock %}
-
 {% block content %}
-<header class="bg-primary text-white text-center py-3">
-    <h1>Graduation Eligibility</h1>
-</header>
+<style>
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+    th { background-color: #4CAF50; color: white; }
+    button { padding: 8px 12px; margin: 5px; cursor: pointer; }
+    .promote { background-color: blue; color: white; }
+    .graduate { background-color: green; color: white; }
+</style>
 
-<div class="container mt-4">
-    <form id="graduationForm">
-        <div class="mb-3">
-            <label for="studentName" class="form-label">Student Name</label>
-            <select class="form-control" id="studentName" required>
-                <option value="">Select a Student</option>
-                {% for student in students %}
-                    <option value="{{ student.id }}">{{ student.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="mb-3">
-            <label for="attendance" class="form-label">Attendance (%)</label>
-            <input type="number" class="form-control" id="attendance" min="0" max="100" readonly>
-        </div>
-        <div class="mb-3">
-            <label for="assessment" class="form-label">Assessment Score (%)</label>
-            <input type="number" class="form-control" id="assessment" min="0" max="100" readonly>
-        </div>
-        <button type="submit" class="btn btn-success">Check Eligibility</button>
-    </form>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<h2>Student Promotion & Graduation</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Program</th>
+            <th>Current Level</th>
+            <th>Attendance (%)</th>
+            <th>Average Score (%)</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="studentTable">
+        <!-- Student rows will be inserted here -->
+    </tbody>
+</table>
 
 <script>
-document.getElementById("studentName").addEventListener("change", function () {
-    const studentId = this.value;
-    
-    if (studentId) {
-        fetch(`/get_student_data/${studentId}`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("attendance").value = data.attendance;
-                document.getElementById("assessment").value = data.assessment;
-            })
-            .catch(error => console.error("Error fetching student data:", error));
-    } else {
-        document.getElementById("attendance").value = "";
-        document.getElementById("assessment").value = "";
+    $(document).ready(function() {
+        fetchStudents();
+    });
+
+    function fetchStudents() {
+        $.get("/api/students", function(students) {
+            $("#studentTable").empty();
+            students.forEach(student => {
+                checkGraduation(student);
+            });
+        });
     }
-});
+
+    function checkGraduation(student) {
+        $.get(`/auth/check_graduation/${student.id}`, function(data) {
+            let actionButton = `<button class='promote' onclick='promoteStudent(${student.id})'>Promote</button>`;
+            
+            if (data.qualified) {
+                actionButton = `<button class='graduate' onclick='graduateStudent(${student.id})'>Graduate</button>`;
+            }
+
+            let row = `
+                <tr>
+                    <td>${student.name}</td>
+                    <td>${student.program}</td>
+                    <td>${student.center_year || student.student_class}</td>
+                    <td>${data.attendance_percentage.toFixed(2)}%</td>
+                    <td>${data.average_score.toFixed(2)}%</td>
+                    <td>${student.graduated ? 'Graduated' : 'Active'}</td>
+                    <td>${student.graduated ? '-' : actionButton}</td>
+                </tr>
+            `;
+
+            $("#studentTable").append(row);
+        });
+    }
+
+    function promoteStudent(studentId) {
+        $.ajax({
+            url: "/api/promote_students",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ student_id: studentId }),
+            success: function(response) {
+                alert(response.message);
+                fetchStudents();
+            }
+        });
+    }
+
+    function graduateStudent(studentId) {
+        $.ajax({
+            url: "/api/graduate_student",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ student_id: studentId }),
+            success: function(response) {
+                alert(response.message);
+                fetchStudents();
+            }
+        });
+    }
 </script>
+
 {% endblock %}

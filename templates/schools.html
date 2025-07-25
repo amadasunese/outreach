@@ -11,6 +11,7 @@
                 <th style="border: 1px solid black; padding: 8px;">Name</th>
                 <th style="border: 1px solid black; padding: 8px;">Address</th>
                 <th style="border: 1px solid black; padding: 8px;">Phone</th>
+                <th style="border: 1px solid black; padding: 8px;">Number of Students</th> <!-- Added column -->
             </tr>
         </thead>
         <tbody>
@@ -20,6 +21,7 @@
                 <td style="border: 1px solid black; padding: 8px;">{{ school.name }}</td>
                 <td style="border: 1px solid black; padding: 8px;">{{ school.address }}</td>
                 <td style="border: 1px solid black; padding: 8px;">{{ school.phone }}</td>
+                <td style="border: 1px solid black; padding: 8px;">{{ student_counts }}</td> <!-- Added column value -->
             </tr>
             {% endfor %}
         </tbody>

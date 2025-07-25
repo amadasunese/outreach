@@ -1,0 +1,121 @@
+{% extends base.html %}
+
+{% block title %} Student Promotion and Graduation {% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">🎓 Student Promotion & Graduation</h2>
+
+    <!-- Filter Section -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <label>📍 Select Program:</label>
+            <select id="programFilter" class="form-select">
+                <option value="ALL">All</option>
+                <option value="CENTER_MEETING">Center Meeting</option>
+                <option value="SCHOOL_OUTREACH">School Outreach</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label>📚 Select Class:</label>
+            <select id="classFilter" class="form-select">
+                <option value="ALL">All Classes</option>
+                <option value="Pearl">Pearl</option>
+                <option value="Diamond">Diamond</option>
+                <option value="Oasis">Oasis (Graduation Class)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Students List Table -->
+    <div class="mt-4">
+        <h4>📜 Student List</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Student Name</th>
+                    <th>Program</th>
+                    <th>Current Class</th>
+                    <th>Assessment Score</th>
+                    <th>Eligible for Promotion?</th>
+                </tr>
+            </thead>
+            <tbody id="studentTableBody">
+                <!-- Data will be dynamically loaded here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Promotion Button -->
+    <div class="text-center mt-4">
+        <button class="btn btn-primary" id="promoteBtn">📈 Promote Selected Students</button>
+    </div>
+</div>
+
+<script>
+    // Function to fetch student data
+    async function fetchStudents() {
+        const program = document.getElementById("programFilter").value;
+        const studentClass = document.getElementById("classFilter").value;
+        
+        try {
+            let response = await fetch(`/api/students?program=${program}&class=${studentClass}`);
+            let data = await response.json();
+
+            let tableBody = document.getElementById("studentTableBody");
+            tableBody.innerHTML = "";
+
+            data.students.forEach(student => {
+                let isEligible = student.assessment_score >= 70; // 70+ score is required for promotion
+
+                let row = `<tr>
+                    <td><input type="checkbox" class="student-checkbox" data-id="${student.id}" ${isEligible ? "" : "disabled"}></td>
+                    <td>${student.name}</td>
+                    <td>${student.program}</td>
+                    <td>${student.current_class}</td>
+                    <td>${student.assessment_score}</td>
+                    <td>${isEligible ? "✅ Yes" : "❌ No"}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+
+        } catch (error) {
+            console.error("Error fetching students:", error);
+        }
+    }
+
+    // Event listener for program/class filters
+    document.getElementById("programFilter").addEventListener("change", fetchStudents);
+    document.getElementById("classFilter").addEventListener("change", fetchStudents);
+
+    // Promote students
+    document.getElementById("promoteBtn").addEventListener("click", async () => {
+        let selectedStudents = [];
+        document.querySelectorAll(".student-checkbox:checked").forEach(checkbox => {
+            selectedStudents.push(checkbox.getAttribute("data-id"));
+        });
+
+        if (selectedStudents.length === 0) {
+            alert("No students selected for promotion.");
+            return;
+        }
+
+        let response = await fetch("/api/promote_students", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ students: selectedStudents })
+        });
+
+        if (response.ok) {
+            alert("Promotion successful!");
+            fetchStudents(); // Refresh student list
+        } else {
+            alert("Failed to promote students.");
+        }
+    });
+
+    // Load students on page load
+    fetchStudents();
+</script>
+{% endblock %}

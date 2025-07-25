@@ -1,3 +1,12 @@
+// studentForm validation
+
+
+
+
+
+
+
+
 // // Example for student enrollment
 // const enrollForm = document.getElementById('enrollForm'); // Get your form element
 

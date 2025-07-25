@@ -29,8 +29,8 @@
                 <td>{{ students.center_year }}</td>
                 <td>{{ students.phone }}</td>
                 <td>
-                    <a href="{{ url_for('auth.edit_center_girl', id=students.id) }}" class="btn btn-primary">Edit</a> 
-                    <a href="{{ url_for('auth.delete_center_girl', id=students.id) }}" class="btn btn-danger">Delete</a>
+                    <a href="{{ url_for('auth.edit_student', id=students.id) }}" class="btn btn-primary">Edit</a> 
+                    <a href="{{ url_for('auth.delete_student', id=students.id) }}" class="btn btn-danger">Delete</a>
                 </td>
             </tr>
             {% endfor %}

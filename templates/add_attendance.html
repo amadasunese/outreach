@@ -8,23 +8,92 @@
     <form method="POST" class="needs-validation" novalidate>
         <div class="form-group">
             <label for="student_id">Student:</label>
-            <select name="student_id" id="student_id" class="form-control">
+            <select name="student_id" id="student_id" class="form-control" required onchange="updateStudentDetails()">
+                <option value="">Select Student</option>
                 {% for student in students %}
-                <option value="{{ student.id }}">{{ student.name }}</option>
+                <option value="{{ student.id }}" 
+                        data-program-type="{{ student.program_type }}">
+                    {{ student.name }}
+                </option>
                 {% endfor %}
             </select>
         </div>
+
         <div class="form-group">
             <label for="week">Week:</label>
-            <input type="number" id="week" name="week" class="form-control" required>
+            <input type="number" id="week" name="week" class="form-control" required min="1">
         </div>
-        <div class="form-group">
-            <label for="present">Present:</label>
+
+        <!-- Center Student Fields -->
+        <div id="center_fields" style="display: none;">
+            <div class="form-group">
+                <label for="center_year">Center Year:</label>
+                <select id="center_year" name="center_year" class="form-control">
+                    <option value="">Select Year</option>
+                    {% for year in center_years %}
+                    <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="center_class">Center Class:</label>
+                <select id="center_class" name="center_class" class="form-control">
+                    <option value="">Select Class</option>
+                    {% for class in center_classes %}
+                    <option value="{{ class }}">{{ class }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Outreach Student Fields -->
+        <div id="outreach_fields" style="display: none;">
+            <div class="form-group">
+                <label for="academic_session">Academic Session:</label>
+                <select id="academic_session" name="academic_session" class="form-control">
+                    <option value="">Select Session</option>
+                    {% for session in academic_sessions %}
+                    <option value="{{ session }}">{{ session }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="term">Term:</label>
+                <select id="term" name="term" class="form-control">
+                    <option value="">Select Term</option>
+                    {% for term in terms %}
+                    <option value="{{ term }}">{{ term }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group form-check">
             <input type="checkbox" id="present" name="present" class="form-check-input">
+            <label for="present" class="form-check-label">Present</label>
         </div>
+
         <button type="submit" class="btn btn-primary">Submit</button>
+        <a href="/attendance" class="btn btn-secondary">Back to Attendance</a>
     </form>
-    <a href="/attendances" class="btn btn-secondary">Back to Attendances</a>
 </div>
+
+<script>
+function updateStudentDetails() {
+    let studentDropdown = document.getElementById("student_id");
+    let selectedOption = studentDropdown.options[studentDropdown.selectedIndex];
+
+    let programType = selectedOption.getAttribute("data-program-type");
+
+    // Toggle visibility based on program type
+    if (programType === "center") {
+        document.getElementById("center_fields").style.display = "block";
+        document.getElementById("outreach_fields").style.display = "none";
+    } else {
+        document.getElementById("center_fields").style.display = "none";
+        document.getElementById("outreach_fields").style.display = "block";
+    }
+}
+</script>
 
 {% endblock %}

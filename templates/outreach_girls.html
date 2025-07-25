@@ -14,6 +14,7 @@
                 <th>Name of School</th>
                 <th>Class</th>
                 <th>Phone Number</th>
+                <th>Academic Session</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -30,9 +31,10 @@
                 <td>{{ students.school.name }}</td>
                 <td>{{ students.student_class }}</td>
                 <td>{{ students.phone }}</td>
+                <td>{{ students.academic_session }}</td>
                 <td>
-                    <a href="{{ url_for('auth.edit_student', id=students.id) }}">Edit</a> 
-                    <a href="{{ url_for('auth.delete_student', id=students.id) }}">Delete</a>
+                    <a href="{{ url_for('auth.edit_student', id=students.id) }}" class="btn btn-primary">Edit</a> 
+                    <a href="{{ url_for('auth.delete_student', id=students.id) }}" class="btn btn-danger">Delete</a>
                 </td>
             </tr>
             {% endfor %}

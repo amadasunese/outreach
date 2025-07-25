@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}GPI Center/Outreach Program Management{% endblock %}</title>
+    <title>{% block title %}GPI Center/Outreach Management System{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> 
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -18,7 +18,9 @@
 <body>
     <header>
         <div class="logo">
-            <img src="{{ url_for('static', filename='images/gpilogo.png') }}" alt="GPI Logo" width="250">
+            <a href="{{ url_for('auth.index') }}">
+                <img src="{{ url_for('static', filename='images/gpilogo.png') }}" alt="GPI Logo" width="250">
+            </a>
         </div>
         <style>
             @media (max-width: 767px) {
@@ -30,7 +32,7 @@
                 }
             }
         </style>
-        <h1 class="title1" style="color:aliceblue; font-family: 'Roboto', sans-serif;">GPI Center/Outreach Management System</h1>
+        <h1 class="title1" style="color:aliceblue; font-family: 'Roboto', sans-serif;">GPI Center/Outreach Management System</h1> 
     </header>
     <style>
         header {
@@ -48,7 +50,9 @@
 
     <nav>
         <div class="logo2" style="text-align: center;">
-            <img src="{{ url_for('static', filename='images/gpilogo.png') }}" alt="Logo" width="250">
+            <a href="{{ url_for('auth.index') }}">
+                <img src="{{ url_for('static', filename='images/gpilogo.png') }}" alt="GPI Logo" width="250">
+            </a>
             <h1 class="title" style="color: aliceblue; font-family: 'Roboto', sans-serif;">GPI Center/Outreach Management System</h1>
         </div>
         <style>
@@ -69,16 +73,19 @@
         <ul>
             <li><a href="{{ url_for('auth.index') }}">Home</a></li>
             <li>
-                <a href="#">Schools ▼</a>
+                <!-- <a href="#">Schools ▼</a>
                 <ul>
                     <li><a href="{{ url_for('auth.schools') }}">View Schools</a></li>
                     <li><a href="{{ url_for('auth.facilitators') }}">Facilitators</a></li>
                     <li><a href="{{ url_for('auth.students') }}">Students</a></li>
                 </ul>
             </li>
-            <li>
+            <li> -->
                 <a href="#">GPI Center/Outreach ▼</a>
                 <ul>
+                    <li><a href="{{ url_for('auth.schools') }}">View Outreach Schools</a></li>
+                    <li><a href="{{ url_for('auth.add_student') }}">Enrollment New Student</a></li>
+                    <li><a href="{{ url_for('auth.facilitators') }}">Facilitators</a></li>
                     <li><a href="{{ url_for('auth.center_girls') }}">Center Girls</a></li>
                     <li><a href="{{ url_for('auth.outreach_girls') }}">Outreach Girls</a></li>
                 </ul>
@@ -86,9 +93,10 @@
             <li>
                 <a href="#">Education & Attendance ▼</a>
                 <ul>
-                    <li><a href="{{ url_for('auth.attendances') }}">Attendances</a></li>
+                    <li><a href="{{ url_for('auth.attendances') }}">Attendance</a></li>
                     <li><a href="{{ url_for('auth.lessons') }}">Lessons</a></li>
                     <li><a href="{{ url_for('auth.assessments') }}">Assessments</a></li>
+                    <li><a href="{{ url_for('auth.graduation') }}">Promote Students</a></li>
                 </ul>
             </li>
 
@@ -122,7 +130,12 @@
 
     <footer>
         <p>&copy; 2025 Girls' Power Initiative (GPI). All Rights Reserved.</p>
+        <div class="powered">
+            Powered by <a href="https://amadasunese.pythonanywhere.com/">EseByte Technologies </a>
+        </div>
+        
     </footer>
+   
 
     <script src="{{ url_for('static', filename='js/script.js') }}" ></script>
 <!-- <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script> -->
