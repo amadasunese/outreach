@@ -22,8 +22,8 @@ def load_user(user_id):
 app.register_blueprint(auth)
 
 # Automatically apply migrations on startup
-# with app.app_context():
-#     upgrade()  # Auto-applies any new migrations
+with app.app_context():
+    upgrade()  # Auto-applies any new migrations
 
 if __name__ == '__main__':
     app.run(debug=True)

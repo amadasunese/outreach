@@ -4,9 +4,9 @@ from flask_login import UserMixin
 from enum import Enum
 
 
-class ProgramType(Enum):
-    SCHOOL_OUTREACH = "School Outreach"
-    CENTER_MEETING = "Center Meeting"
+# class ProgramType(Enum):
+#     SCHOOL_OUTREACH = "School Outreach"
+#     CENTER_MEETING = "Center Meeting"
 
 
 class User(db.Model, UserMixin):
@@ -45,7 +45,9 @@ class Student(db.Model):
     sex = db.Column(db.String(10))
     age = db.Column(db.Integer)
     school_id = db.Column(db.Integer, db.ForeignKey('school.id'), nullable=True)  # Nullable for center students
-    program_type = db.Column(db.Enum(ProgramType), nullable=False)  # Distinguish Outreach vs Center
+    program_type = db.Column(db.String(200), nullable=False)  # Distinguish Outreach vs Center
+    # program_type = db.Column(db.Enum(ProgramType), nullable=False)  # Distinguish Outreach vs Center
+
 
     # School outreach students
     student_class = db.Column(db.String(50), nullable=True)  # e.g., JSS1, JSS2
@@ -69,8 +71,11 @@ class Student(db.Model):
     consent = db.Column(db.Boolean, default=False)
 
     # Relationships
-    assessments = db.relationship('Assessment', backref=db.backref('student_ref', lazy=True), cascade='all, delete-orphan')
-    attendance_records = db.relationship('Attendance', backref=db.backref('student_ref', lazy=True), cascade='all, delete-orphan')
+    # assessments = db.relationship('Assessment', backref=db.backref('student_ref', lazy=True), cascade='all, delete-orphan')
+    # attendance_records = db.relationship('Attendance', backref=db.backref('student_ref', lazy=True), cascade='all, delete-orphan')
+
+    assessments = db.relationship('Assessment', back_populates='student', cascade='all, delete-orphan')
+    attendance_records = db.relationship('Attendance', back_populates='student', cascade='all, delete-orphan')
 
 
 class Attendance(db.Model):
@@ -80,12 +85,24 @@ class Attendance(db.Model):
     present = db.Column(db.Boolean, nullable=False)
 
     # Automatically derive center year, center class, or academic session from Student
-    student = db.relationship('Student', backref=db.backref('attendance_entries', lazy=True))
+    # student = db.relationship('Student', backref=db.backref('attendance_entries', lazy=True))
+    student = db.relationship('Student', back_populates='attendance_records')
 
 class AssessmentType(Enum):
     GENERAL = "General Assessment"
     CENTER_PROMOTION = "Center Promotion Assessment"
     OUTREACH_PROMOTION = "Outreach Promotion Assessment"
+
+# class Assessment(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
+#     obtainable_score = db.Column(db.Float, nullable=False)
+#     score = db.Column(db.Float, nullable=False)
+#     assessment_type = db.Column(db.Enum(AssessmentType), nullable=False)
+
+
+#     # Automatically derive center year, center class, or academic session from Student
+#     student = db.relationship('Student', backref=db.backref('assessment_entries', lazy=True))
 
 class Assessment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -93,15 +110,14 @@ class Assessment(db.Model):
     obtainable_score = db.Column(db.Float, nullable=False)
     score = db.Column(db.Float, nullable=False)
     assessment_type = db.Column(db.Enum(AssessmentType), nullable=False)
-    
 
-    # Automatically derive center year, center class, or academic session from Student
-    student = db.relationship('Student', backref=db.backref('assessment_entries', lazy=True))
-
+    student = db.relationship('Student', back_populates='assessments')
 
 class Lesson(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     week = db.Column(db.Integer, nullable=False)
     topic = db.Column(db.String(255), nullable=False)
-    program_type = db.Column(db.Enum(ProgramType), nullable=False)
+    program_type = db.Column(db.String(200), nullable=False)
+    # program_type = db.Column(db.Enum(ProgramType), nullable=False)
+
 

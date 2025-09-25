@@ -16,6 +16,7 @@
                     <th>Sex</th>
                     <th>Age</th>
                     <th>School</th>
+                    <th>Program Type</th>
                     <th>Class</th>
                     <th>Address</th>
                     <th>Phone</th>
@@ -42,10 +43,11 @@
                         {% if student.school %} {{ student.school.name }} {% else %}
                         GPI Center Meeting {% endif %}
                     </td>
+                    <td>{{ student.program_type }}</td>
                     <td>
-                        {% if student.program_type == 'SCHOOL_OUTREACH' %}
+                        {% if student.program_type == 'School Outreach' %}
                         {{ student.student_class if student.student_class else "Class Not Set" }}
-                        {% elif student.program_type == 'CENTER_MEETING' %}
+                        {% elif student.program_type == 'Center Meeting' %}
                         Year {{ student.center_year if student.center_year else "Year Not Set" }}
                         {% else %}
                         N/A
@@ -63,7 +65,7 @@
                     <td>{{ student.introduced_by }}</td>
                     <td>{{ student.consent }}</td>
                     <td>
-                        <a href="{{ url_for('auth.edit_student', id=student.id) }}" class="btn btn-primary">Edit</a> 
+                        <a href="{{ url_for('auth.edit_student', id=student.id) }}" class="btn btn-primary">Edit</a>
                         <a href="{{ url_for('auth.delete_student', id=student.id) }}" class="btn btn-danger">Delete</a>
                     </td>
                 </tr>

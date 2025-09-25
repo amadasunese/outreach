@@ -25,13 +25,13 @@
         <div class="mb-3">
             <label for="program_type" class="form-label">Program Type</label>
             <select class="form-control" id="program_type" name="program_type">
-                <option value="SCHOOL_OUTREACH" {% if student.program_type == 'SCHOOL_OUTREACH' %}selected{% endif %}>School Outreach</option>
-                <option value="CENTER_MEETING" {% if student.program_type == 'CENTER_MEETING' %}selected{% endif %}>Center Meeting</option>
+                <option value="School Outreach" {% if student.program_type == 'School Outreach' %}selected{% endif %}>School Outreach</option>
+                <option value="Center Meeting" {% if student.program_type == 'Center Meeting' %}selected{% endif %}>Center Meeting</option>
             </select>
         </div>
 
         <!-- School Outreach Fields -->
-        <div id="school_fields" style="display: {% if student.program_type == 'SCHOOL_OUTREACH' %}block{% else %}none{% endif %};">
+        <div id="school_fields" style="display: {% if student.program_type == 'School Outreach' %}block{% else %}none{% endif %};">
             <div class="mb-3">
                 <label for="school_id" class="form-label">School</label>
                 <select class="form-control" id="school_id" name="school_id">
@@ -63,7 +63,7 @@
         </div>
 
         <!-- Center Meeting Fields -->
-        <div id="center_fields" style="display: {% if student.program_type == 'CENTER_MEETING' %}block{% else %}none{% endif %};">
+        <div id="center_fields" style="display: {% if student.program_type == 'Center Meeting' %}block{% else %}none{% endif %};">
             <div class="mb-3">
                 <label for="center_year" class="form-label">Center Year</label>
                 <input type="number" class="form-control" id="center_year" name="center_year" value="{{ student.center_year }}">
@@ -136,8 +136,8 @@
 
 <script>
     document.getElementById('program_type').addEventListener('change', function () {
-        document.getElementById('school_fields').style.display = this.value === 'SCHOOL_OUTREACH' ? 'block' : 'none';
-        document.getElementById('center_fields').style.display = this.value === 'CENTER_MEETING' ? 'block' : 'none';
+        document.getElementById('school_fields').style.display = this.value === 'School Outreach' ? 'block' : 'none';
+        document.getElementById('center_fields').style.display = this.value === 'Center Meeting' ? 'block' : 'none';
     });
 </script>
 

@@ -42,8 +42,8 @@
                         <label for="program_type" class="form-label">Program Type:</label>
                         <select class="form-control" name="program_type" id="program_type" required>
                             <option value="">--Select Program Type--</option>
-                            <option value="SCHOOL_OUTREACH">School Outreach</option>
-                            <option value="CENTER_MEETING">Center Meeting</option>
+                            <option value="School Outreach">School Outreach</option>
+                            <option value="Center Meeting">Center Meeting</option>
                         </select>
                     </div>
 
@@ -191,7 +191,7 @@
             </form>
 
             <a href="{{ url_for('auth.students') }}" class="btn btn-link mt-3">Back to Students</a>
-            
+
         </div>
     </div>
 </div>
@@ -236,8 +236,8 @@
     const centerFields = document.getElementById('center_fields');
 
     programTypeSelect.addEventListener('change', () => {
-        schoolFields.style.display = programTypeSelect.value === 'SCHOOL_OUTREACH' ? 'block' : 'none';
-        centerFields.style.display = programTypeSelect.value === 'CENTER_MEETING' ? 'block' : 'none';
+        schoolFields.style.display = programTypeSelect.value === 'School Outreach' ? 'block' : 'none';
+        centerFields.style.display = programTypeSelect.value === 'Center Meeting' ? 'block' : 'none';
     });
 </script>
 
@@ -301,16 +301,16 @@
     // const centerFields = document.getElementById('center_fields');
 
     programTypeSelect.addEventListener('change', () => {
-        schoolFields.style.display = programTypeSelect.value === 'SCHOOL_OUTREACH' ? 'block' : 'none';
-        centerFields.style.display = programTypeSelect.value === 'CENTER_MEETING' ? 'block' : 'none';
+        schoolFields.style.display = programTypeSelect.value === 'School Outreach' ? 'block' : 'none';
+        centerFields.style.display = programTypeSelect.value === 'Center Meeting' ? 'block' : 'none';
 
         // Set required fields dynamically based on selection
         document.querySelectorAll('#school_fields input, #school_fields select').forEach(el => {
-            el.required = programTypeSelect.value === 'SCHOOL_OUTREACH';
+            el.required = programTypeSelect.value === 'School Outreach';
         });
 
         document.querySelectorAll('#center_fields input, #center_fields select').forEach(el => {
-            el.required = programTypeSelect.value === 'CENTER_MEETING';
+            el.required = programTypeSelect.value === 'Center Meeting';
         });
     });
 </script>
