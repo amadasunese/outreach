@@ -5,6 +5,10 @@ from flask_migrate import upgrade
 from views import auth
 from models import User
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 app = Flask(__name__)
 app.config.from_object(Config)
 
