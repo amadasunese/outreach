@@ -14,26 +14,9 @@ The **GPI Student Tracking System** is a web-based application designed to manag
 ## Technologies Used
 - **Frontend:** HTML, CSS, Bootstrap
 - **Backend:** Flask (Python)
-- **Database:** SQLite/MySQL
+- **Database:** MySQL
 
-## Installation
-1. Clone the repository:
-   ```sh
-   git clone https://github.com/yourusername/gpi-student-tracking.git
-   ```
-2. Navigate to the project folder:
-   ```sh
-   cd gpi-student-tracking
-   ```
-3. Install dependencies:
-   ```sh
-   pip install -r requirements.txt
-   ```
-4. Run the application:
-   ```sh
-   flask run
-   ```
-5. Open your browser and go to `http://127.0.0.1:5000`
+Open your browser and go to 'https://gpimamagementsystem.pythonanywhere.com/' to check it out.
 
 ## Usage
 - Navigate to the **enrollment** page to register students.
@@ -45,10 +28,6 @@ The **GPI Student Tracking System** is a web-based application designed to manag
 ## Contribution
 Contributions are welcome! Feel free to submit a pull request or report issues.
 
-## License
-This project is licensed under the MIT License.
 
----
-
-For further information, contact the project maintainer at `your-email@example.com`.
+For further information, contact the project maintainer at amadasunese@gmail.com`.
 
